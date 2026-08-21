@@ -36,7 +36,7 @@ S = {
     pvpFarmLoop     = false,
     boatFlyEnabled  = false,
     boatTweening    = false,
-    remoteMode      = false,   -- when true: autoFarmNearest/autoFarmLevel use RegisterHit instead of mouse1click
+    remoteMode      = true,   -- when true: autoFarmNearest/autoFarmLevel use RegisterHit instead of mouse1click
     -- settings
     customPullX    = 0,
     customPullY    = -10,
@@ -412,7 +412,7 @@ for _, isle in pairs(islandList) do table.insert(islandNames, isle.name) end
 Window = Library:CreateWindow({
     Title = "Bats Private",
     Columns = 3,
-    Divider = true,
+    Divider = false,
     ConfigFile = "BatsPrivate.json",
     BuiltInIndicatorToggle = false,
     Width = 690,
@@ -478,7 +478,7 @@ Window:AddToggle("auto_npc_farm", {
 
 
 Window:AddToggle("auto_farm_level", {
-    Text="Auto Farm Level (MID)", Description="Farms mobs based on your current level (quest giver must be loaded!)",
+    Text="Auto Farm Level (NEED AUTOCLICKER AND REMOTE MODE ON)", Description="Farms mobs based on your current level (quest giver must be loaded!)",
     Default=false, Keybind=true, Column=1,
     Callback=function(v)
         S.autoFarmLevel=v
