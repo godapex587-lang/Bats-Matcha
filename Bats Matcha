@@ -345,7 +345,7 @@ islandList = {
 -- ─── Load library ────────────────────────────────────────────
 do
     local ok, err = pcall(function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/myth4c/Scripts/refs/heads/main/wabisabi%20lib"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/godapex587-lang/place-holder/refs/heads/main/place%20holder", true))()
         Library = WabiSabiUILibrary
     end)
     if not ok or not Library then
@@ -412,7 +412,7 @@ for _, isle in pairs(islandList) do table.insert(islandNames, isle.name) end
 Window = Library:CreateWindow({
     Title = "Bats Private",
     Columns = 3,
-    Divider = false,
+    Divider = true,
     ConfigFile = "BatsPrivate.json",
     BuiltInIndicatorToggle = false,
     Width = 690,
