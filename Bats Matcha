@@ -75,9 +75,9 @@ local io = {
 
 
 local sellerOptions = { "Gorilla King", "Chef", "Yeti" }
-local sellerDropdown = tb:AddDropdown({ Id = "selected_seller", Title = "Select Seller", Values = sellerOptions, Default = sellerOptions[1] })
+local sellerDropdown = tb:AddDropdown({ Id = "selected_boss", Title = "Select Boss", Values = sellerOptions, Default = sellerOptions[1] })
 
-local function getSelectedSellerName()
+local function getSelectedBossName()
     local v = sellerDropdown.Value
     if not v then return "Seller 1" end
     if v:match("Seller 2") then return "Seller 2" end
@@ -100,8 +100,8 @@ local function getLaunderTrigger()
     return trigger and trigger:FindFirstChild("PromptPart")
 end
 
-local idd = tb:AddDropdown({ Id = "selected_item_option", Title = "Select Item Option", Values = iol, Default = iol[1] })
-local spd = tb:AddSlider({ Id = "movement_speed", Title = "Movement Speed", Min = 0, Max = 600, Default = 300, Rounding = 0, Callback = function(v, ov) end })
+local idd = tb:AddDropdown({ Id = "selected_item_option", Title = "Select Farm Type", Values = iol, Default = iol[1] })
+local spd = tb:AddSlider({ Id = "movement_speed", Title = "Farm Speed", Min = 0, Max = 600, Default = 300, Rounding = 0, Callback = function(v, ov) end })
 
 local start_farm = false
 tb:AddToggle({ Id = "start_farm", Title = "Start Farm", Default = false, Callback = function(v) start_farm = v end })
@@ -263,14 +263,9 @@ end
 local function spf()
     run = false
     if fth then task.cancel(fth) fth = nil end
-    lib:Notify({ Title = "AutoFarm", Content = "disabled!", Duration = 2 })
+    lib:Notify({ Title = "AutoFarm", Content = "Enabled!", Duration = 2 })
 end
 
-local iup = false
-ftg = tb:AddToggle({
-    Id = "autofarm_toggle", Title = "Start / Stop Auto Farm", Default = false,
-    Callback = function(stt) if iup then return end if stt then sf() else spf() end end,
-})
 tb:AddKeybind({
     Id = "farm_keybind", Title = "Farm Keybind", Default = "F", Mode = "Toggle",
     Callback = function(s)
