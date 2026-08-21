@@ -49,26 +49,7 @@ S = {
     MIN_SPEED      = 50,
     MAX_SPEED      = 1000,
     SPEED_STEP     = 50,
-    customOffset   = false,
-    customOffsetX  = 0,
-    customOffsetY  = 23,
-    customOffsetZ  = 0,
-    -- data/state
-    chamBoxes      = {},
-    espLabels      = {},
-    chestIndex     = 1,
-    selectedIsland = 1,
-    espLabelCache  = {},
-    chamBoxCache   = {},
-    eggLabelCache  = {},
-    eggLabels      = {},
-    currentBoat    = nil,
-    boatTween      = nil,
-    raidTweenActive   = false,
-    raidLastIslandNum = 0,
-    lastRaidIslandCount = 0,
 }
-
 -- ─── AFL state table ──────────────────────────────────────────
 AFL = {
     tweenSpeed       = 250,
@@ -429,10 +410,10 @@ islandNames = {}
 for _, isle in pairs(islandList) do table.insert(islandNames, isle.name) end
 
 Window = Library:CreateWindow({
-    Title = "redacted",
+    Title = "Bats Private",
     Columns = 3,
     Divider = true,
-    ConfigFile = "myth4c_bloxfruits.json",
+    ConfigFile = "BatsPrivate.json",
     BuiltInIndicatorToggle = false,
     Width = 690,
     Theme = { Colors = { Accent = Color3.fromRGB(0,170,80) } }
@@ -476,25 +457,10 @@ Window:AddToggle("fruit_esp", {
         if v then buildEspLabels(); buildChamBoxes() else clearEspLabels(); clearChamBoxes() end
         notify(v and "Fruit ESP On!" or "Fruit ESP Off!","redacted",2)
     end
+
 })
 
-Window:AddToggle("egg_esp", {
-    Text="Egg ESP", Description="Shows ESP on all Easter Eggs in ReplicatedStorage",
-    Default=false, Keybind=true, Column=1,
-    Callback=function(v) S.eggEsp=v; if v then buildEggLabels() end; notify(v and "Egg ESP On!" or "Egg ESP Off!","redacted",2) end
-})
 
-Window:AddToggle("auto_tp_egg", {
-    Text="Auto TP Egg", Description="Teleports you to the nearest Easter Egg every 0.5s",
-    Default=false, Keybind=true, Column=1,
-    Callback=function(v) S.autoTpEgg=v; if v then buildEggLabels() end; notify(v and "Auto TP Egg ON!" or "Auto TP Egg OFF!","redacted",2) end
-})
-
-Window:AddToggle("auto_farm_fruits", {
-    Text="Auto Farm Fruits", Description="Tweens to the nearest fruit and farms it",
-    Default=false, Keybind=true, Column=1,
-    Callback=function(v) S.autoFruits=v; notify(v and "Auto Farm Fruits ON!" or "Auto Farm Fruits OFF!","redacted",2) end
-})
 
 Window:AddToggle("auto_tp_fruit", {
     Text="Auto TP To Fruit", Description="Instantly teleports you to the nearest fruit",
@@ -510,19 +476,9 @@ Window:AddToggle("auto_npc_farm", {
     Callback=function(v) S.autoNpcFarm=v; notify(v and "Auto NPC Farm ON!" or "Auto NPC Farm OFF!","redacted",2) end
 })
 
-Window:AddDropdown("npc_island", {
-    Text="NPC Island", Description="Select which island to farm NPCs on",
-    Options=islandNames, Default=islandNames[1], MaxVisible=6, Column=1,
-    Callback=function(v)
-        for i, isle in pairs(islandList) do
-            if isle.name == v then S.selectedIsland=i; break end
-        end
-        notify("Island: "..v,"redacted",1)
-    end
-})
 
 Window:AddToggle("auto_farm_level", {
-    Text="Auto Farm Level", Description="Farms mobs based on your current level (quest giver must be loaded!)",
+    Text="Auto Farm Level (MID)", Description="Farms mobs based on your current level (quest giver must be loaded!)",
     Default=false, Keybind=true, Column=1,
     Callback=function(v)
         S.autoFarmLevel=v
@@ -531,34 +487,6 @@ Window:AddToggle("auto_farm_level", {
     end
 })
 
-Window:AddSection("Custom NPC Offset", { Column = 3 })
-
-Window:AddToggle("custom_offset", {
-    Text="Custom NPC Offset", Description="Use custom XYZ offset when positioning on NPCs",
-    Default=false, Column=3,
-    Callback=function(v)
-        S.customOffset=v
-        notify(v and "Custom Offset ON!" or "Custom Offset OFF!","redacted",2)
-    end
-})
-
-Window:AddSlider("offset_x", {
-    Text="Offset X", Description="X offset from enemy position",
-    Min=-100, Max=100, Default=0, Decimals=1, Column=3,
-    Callback=function(v) S.customOffsetX=v end
-})
-
-Window:AddSlider("offset_y", {
-    Text="Offset Y", Description="Y offset from enemy position",
-    Min=-100, Max=100, Default=23, Decimals=1, Column=3,
-    Callback=function(v) S.customOffsetY=v end
-})
-
-Window:AddSlider("offset_z", {
-    Text="Offset Z", Description="Z offset from enemy position",
-    Min=-100, Max=100, Default=0, Decimals=1, Column=3,
-    Callback=function(v) S.customOffsetZ=v end
-})
 
 Window:AddSection("Combat", { Column = 2 })
 
@@ -568,243 +496,12 @@ Window:AddToggle("big_hitbox", {
     Callback=function(v) S.bigHitbox=v; notify(v and "Big Hitbox ON!" or "Big Hitbox OFF!","redacted",2) end
 })
 
-Window:AddToggle("pull_enemies", {
-    Text="Pull Enemies", Description="Pulls all enemies to one point under you",
+Window:AddToggle("bring_enemies", {
+    Text="Bring Enemies", Description="Bring all enemies to one point under you",
     Default=false, Keybind=true, Column=2,
     Callback=function(v) S.pullEnemies=v; notify(v and "Pull Enemies ON!" or "Pull Enemies OFF!","redacted",2) end
 })
 
-Window:AddToggle("buddha_pull", {
-    Text="Buddha Pull", Description="Pulls all enemies to X=40 under you",
-    Default=false, Keybind=true, Column=2,
-    Callback=function(v) S.buddhaPull=v; notify(v and "Buddha Pull ON!" or "Buddha Pull OFF!","redacted",2) end
-})
-
-Window:AddToggle("auto_ken", {
-    Text="Auto Ken", Description="Automatically keeps Ken (Observation Haki) active",
-    Default=false, Keybind=true, Column=2,
-    Callback=function(v) S.autoKen=v; notify(v and "Auto Ken ON!" or "Auto Ken OFF!","redacted",2) end
-})
-
-Window:AddToggle("freeze_pos", {
-    Text="Freeze Position", Description="Locks your character in place",
-    Default=false, Keybind=true, Column=2,
-    Callback=function(v)
-        S.freezePos=v
-        if v then
-            local char=LocalPlayer.Character
-            local hrp=char and char:FindFirstChild("HumanoidRootPart")
-            if hrp then S.freezePosition=hrp.Position end
-        else
-            S.freezePosition=nil
-        end
-        notify(v and "Freeze ON!" or "Freeze OFF!","redacted",2)
-    end
-})
-
-Window:AddToggle("freeze_enemies", {
-    Text="Freeze Enemies", Description="Locks all enemies in place (auto-catches new spawns)",
-    Default=false, Keybind=true, Column=2,
-    Callback=function(v)
-        S.freezeEnemies=v
-        S.frozenEnemies={}
-        if v then
-            local folder=game.Workspace:FindFirstChild("Enemies")
-            if folder then
-                for _, model in pairs(folder:GetChildren()) do
-                    if model:IsA("Model") then
-                        local hrp=model:FindFirstChild("HumanoidRootPart")
-                        if hrp then S.frozenEnemies[model]=hrp.Position end
-                    end
-                end
-            end
-        end
-        notify(v and "Freeze Enemies ON!" or "Freeze Enemies OFF!","redacted",2)
-    end
-})
-
-Window:AddToggle("teleport_ember", {
-    Text="Auto TP Ember", Description="Auto tps to azure embers",
-    Default=false, Keybind=true, Column=2,
-    Callback=function(v) S.teleportEmber=v; notify(v and "Auto TP Ember ON!" or "Auto TP Ember OFF!","redacted",2) end
-})
-
-Window:AddToggle("teleport_kitsune", {
-    Text="Goto Kitsune Island", Description="Tweens to Kitsune Island shrine (2s scan)",
-    Default=false, Keybind=true, Column=2,
-    Callback=function(v) S.teleportKitsune=v; notify(v and "Goto Kitsune Island ON!" or "Goto Kitsune Island OFF!","redacted",2) end
-})
-
-Window:AddSection("Sea", { Column = 2 })
-
-Window:AddToggle("boat_fly", {
-    Text="Boat Fly", Description="Fly your boat with WASD, Space, Shift",
-    Default=false, Keybind=true, Column=3,
-    Callback=function(v)
-        S.boatFlyEnabled=v
-        if not v then S.boatTweening=false end
-        notify(v and "Boat Fly ON!" or "Boat Fly OFF!","redacted",2)
-    end
-})
-
-Window:AddSlider("boat_fly_speed", {
-    Text="Fly Speed", Description="Speed of boat fly (default 5)",
-    Min=1, Max=20, Step=1, Default=5, Integer=true, Column=3,
-    Callback=function(v) S.boatFlySpeed=v end
-})
-
-Window:AddDropdown("danger_level", {
-    Text="Danger Level", Description="Fly boat to selected danger level",
-    Options=dangerLevelNames, Default=dangerLevelNames[1], MaxVisible=6, Column=2,
-    Callback=function(v)
-        for _, d in pairs(dangerLevels) do
-            if d.name==v then
-                S.boatTweening=false; task.wait(0.05)
-                notify("Going to "..d.name.."...","redacted",2)
-                task.spawn(function() boatTweenTo(d.pos) end)
-                break
-            end
-        end
-    end
-})
-
-Window:AddButton("stop_boat", {
-    Text="Stop", Description="Stop current boat tween", Column=2,
-    Callback=function() S.boatTweening=false; notify("Stopped!","redacted",2) end
-})
-
-Window:AddSection("Raid", { Column = 2 })
-
-Window:AddToggle("auto_raid", {
-    Text="Auto Raid", Description="Scans for RaidMap every 1s, teleports to center and pulls enemies (x=25, y=100)",
-    Default=false, Keybind=true, Column=2,
-    Callback=function(v) S.autoRaid=v; notify(v and "Auto Raid ON!" or "Auto Raid OFF!","redacted",2) end
-})
-
-Window:AddSection("Custom Pull", { Column = 3 })
-
-Window:AddToggle("custom_pull", {
-    Text="Custom Pull", Description="Pulls all enemies to a custom XYZ offset relative to you",
-    Default=false, Keybind=true, Column=3,
-    Callback=function(v) S.customPull=v; notify(v and "Custom Pull ON!" or "Custom Pull OFF!","redacted",2) end
-})
-
-Window:AddSlider("custom_pull_x", {
-    Text="Pull X Offset", Description="X offset from your position",
-    Min=-100, Max=100, Step=1, Default=0, Integer=true, Column=3,
-    Callback=function(v) S.customPullX=v end
-})
-
-Window:AddSlider("custom_pull_y", {
-    Text="Pull Y Offset", Description="Y offset from your position",
-    Min=-100, Max=100, Step=1, Default=-10, Integer=true, Column=3,
-    Callback=function(v) S.customPullY=v end
-})
-
-Window:AddSlider("custom_pull_z", {
-    Text="Pull Z Offset", Description="Z offset from your position",
-    Min=-100, Max=100, Step=1, Default=0, Integer=true, Column=3,
-    Callback=function(v) S.customPullZ=v end
-})
-
-Window:AddSection("PvP", { Column = 1 })
-
-Window:AddToggle("void_pull", {
-    Text="Escape", Description="Sends you to Y=100000",
-    Default=false, Keybind=true, Column=1,
-    Callback=function(v) S.voidPull=v; notify(v and "Go Up ON!" or "Go Up OFF!","redacted",2) end
-})
-
-Window:AddToggle("sky_pull", {
-    Text="Go Back Down", Description="Brings you back to Y=100",
-    Default=false, Keybind=true, Column=1,
-    Callback=function(v) S.skyPull=v; notify(v and "Go Down ON!" or "Go Down OFF!","redacted",2) end
-})
-
-Window:AddToggle("pvp_farm_loop", {
-    Text="PvP Fruit M1 \n(trex best)", Description="Tweens to nearest enemy player, attacks 2s, goes up, repeats. Skips Marines if you are Marines.",
-    Default=false, Keybind=true, Column=1,
-    Callback=function(v) S.pvpFarmLoop=v; notify(v and "PvP Farm ON!" or "PvP Farm OFF!","redacted",2) end
-})
-
--- ─── Boat Fly ─────────────────────────────────────────────────
-function getBoat()
-    local char=LocalPlayer.Character
-    local hrp=char and char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return nil end
-    local boatsFolder=game.Workspace:FindFirstChild("Boats")
-    if not boatsFolder then return nil end
-    for _, b in pairs(boatsFolder:GetChildren()) do
-        if b:IsA("Model") then
-            local seat=b:FindFirstChildOfClass("VehicleSeat")
-            if seat then
-                local dx=seat.Position.X-hrp.Position.X
-                local dy=seat.Position.Y-hrp.Position.Y
-                local dz=seat.Position.Z-hrp.Position.Z
-                if math.sqrt(dx*dx+dy*dy+dz*dz)<20 then return b end
-            end
-        end
-    end
-    return nil
-end
-
-function getBoatCameraVectors()
-    local char=LocalPlayer.Character
-    local hrp=char and char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return Vector3.new(0,0,-1), Vector3.new(1,0,0) end
-    local cp=game.Workspace.CurrentCamera.Position
-    local hp=hrp.Position
-    local fx=hp.X-cp.X; local fz=hp.Z-cp.Z
-    local fl=math.sqrt(fx*fx+fz*fz)
-    if fl>0.001 then fx=fx/fl; fz=fz/fl else fx=0; fz=-1 end
-    return Vector3.new(fx,0,fz), Vector3.new(-fz,0,fx)
-end
-
-function boatTweenTo(targetPos)
-    S.currentBoat = getBoat()
-    if not S.currentBoat then notify("No boat found!","Boat Fly",2); return end
-    local primary=S.currentBoat.PrimaryPart
-    if not primary then return end
-    S.boatTweening=true
-    primary.Position=Vector3.new(primary.Position.X, primary.Position.Y+50, primary.Position.Z)
-    wait(0.1)
-    local fixedY=primary.Position.Y
-    local startX=primary.Position.X; local startZ=primary.Position.Z
-    local dx=targetPos.X-startX; local dz=targetPos.Z-startZ
-    local dist=math.sqrt(dx*dx+dz*dz)
-    local duration=dist/(S.boatFlySpeed*100)
-    local t0=os.clock()
-    while S.boatTweening do
-        local alpha=math.min((os.clock()-t0)/duration,1)
-        primary.Position=Vector3.new(startX+dx*alpha, fixedY, startZ+dz*alpha)
-        primary.Velocity=Vector3.new(0,0,0)
-        primary.AssemblyLinearVelocity=Vector3.new(0,0,0)
-        if alpha>=1 then break end
-        wait(0.01)
-    end
-    S.boatTweening=false; S.currentBoat=nil; S.boatTween=nil
-    notify("Arrived!","Boat Fly",2)
-end
-
-task.spawn(function()
-    while true do
-        task.wait()
-        if not S.boatFlyEnabled or S.boatTweening then continue end
-        local boat=getBoat(); if not boat then continue end
-        local primary=boat.PrimaryPart; if not primary then continue end
-        local fwd, right=getBoatCameraVectors()
-        local mx, my, mz=0,0,0
-        if iskeypressed(0x57,0) then mx=mx+fwd.X*S.boatFlySpeed;   mz=mz+fwd.Z*S.boatFlySpeed   end
-        if iskeypressed(0x53,0) then mx=mx-fwd.X*S.boatFlySpeed;   mz=mz-fwd.Z*S.boatFlySpeed   end
-        if iskeypressed(0x44,0) then mx=mx+right.X*S.boatFlySpeed; mz=mz+right.Z*S.boatFlySpeed end
-        if iskeypressed(0x41,0) then mx=mx-right.X*S.boatFlySpeed; mz=mz-right.Z*S.boatFlySpeed end
-        if iskeypressed(0x58,0) then my=my+S.boatFlySpeed end
-        if iskeypressed(0x10,0) then my=my-S.boatFlySpeed end
-        primary.Velocity=Vector3.new(0,0,0)
-        primary.AssemblyLinearVelocity=Vector3.new(0,0,0)
-        primary.Position=Vector3.new(primary.Position.X+mx, primary.Position.Y+my, primary.Position.Z+mz)
-    end
-end)
 
 -- ─── Core helpers ─────────────────────────────────────────────
 function clearEspLabels()
