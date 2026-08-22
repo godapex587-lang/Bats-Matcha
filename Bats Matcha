@@ -488,6 +488,7 @@ Window:AddToggle("auto_farm_level", {
 })
 
 
+
 Window:AddSection("Combat", { Column = 2 })
 
 Window:AddToggle("big_hitbox", {
