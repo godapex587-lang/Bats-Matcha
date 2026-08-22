@@ -416,13 +416,13 @@ Window = Library:CreateWindow({
     ConfigFile = "BatsPrivate.json",
     BuiltInIndicatorToggle = false,
     Width = 690,
-    Theme = { Colors = { Accent = Color3.fromRGB(0,170,80) } }
+    Theme = { Colors = { Accent = Color3.fromRGB(0, 170, 80) } }
 })
 
 task.spawn(function()
     task.wait(0.2)
     Window.Indicator:SetVisible(false)
-    Window.Config.IndicatorEnabled = false
+    Window.Config.IndicatorEnabled = true
 end)
 
 -- ─── UI ──────────────────────────────────────────────────────
@@ -478,8 +478,7 @@ Window:AddToggle("auto_npc_farm", {
 
 
 Window:AddToggle("auto_farm_level", {
-    Text="Auto Farm Level
-    (REMOTE MODE ON)", Description="Farms mobs based on your current level (quest giver must be loaded!)",
+    Text="Auto Farm Level (REMOTE MODE ON)", Description="Farms mobs based on your current level (quest giver must be loaded!)",
     Default=false, Keybind=true, Column=1,
     Callback=function(v)
         S.autoFarmLevel=v
